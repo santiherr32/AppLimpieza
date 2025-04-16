@@ -5,10 +5,10 @@ const cors = require("cors");
 require("dotenv").config();
 
 // Importar rutas
-const usuarioRoutes = require("./routes/usuarioRoutes");
-const hogarRoutes = require("./routes/hogarRoutes");
-const habitacionRoutes = require("./routes/habitacionRoutes");
-const tareaRoutes = require("./routes/tareaRoutes");
+const usuarioRoutes = require("./routes/usuarioRoute");
+const hogarRoutes = require("./routes/hogarRoute");
+const habitacionRoutes = require("./routes/habitacionRoute");
+const tareaRoutes = require("./routes/tareaRoute");
 
 // Inicializar Express
 const app = express();
