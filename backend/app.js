@@ -4,11 +4,11 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
 
-// Importar modelos
-const Usuario = require("./backend/models/Usuario");
-const Hogar = require("./backend/models/Hogar");
-const Habitacion = require("./backend/models/Habitacion");
-const Tarea = require("./backend/models/Tarea");
+// Importar rutas
+const usuarioRoutes = require("./routes/usuarioRoutes");
+const hogarRoutes = require("./routes/hogarRoutes");
+const habitacionRoutes = require("./routes/habitacionRoutes");
+const tareaRoutes = require("./routes/tareaRoutes");
 
 // Inicializar Express
 const app = express();
@@ -23,6 +23,12 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/", (req, res) => {
   res.json({ message: "Bienvenido a la API de AppLimpieza" });
 });
+
+// Usar rutas
+app.use("/api/usuarios", usuarioRoutes);
+app.use("/api/hogares", hogarRoutes);
+app.use("/api/habitaciones", habitacionRoutes);
+app.use("/api/tareas", tareaRoutes);
 
 // Conexión a MongoDB
 mongoose

@@ -1,0 +1,61 @@
+<div class="jumbotron">
+  <h1 class="display-4">Bienvenido a AppLimpieza</h1>
+  <p class="lead">
+    Tu asistente personal para mantener tu hogar limpio y organizado.
+  </p>
+  <hr class="my-4" />
+  <p>
+    Organiza tareas de limpieza por habitación, establece horarios y
+    frecuencias, y mantén un seguimiento de tus actividades.
+  </p>
+  <p class="lead">
+    <a
+      class="btn btn-primary btn-lg"
+      routerLink="/registro"
+      role="button"
+      *ngIf="!estaAutenticado()"
+      >Registrarse</a
+    >
+    <a
+      class="btn btn-primary btn-lg"
+      routerLink="/dashboard"
+      role="button"
+      *ngIf="estaAutenticado()"
+      >Dashboard</a
+    >
+  </p>
+</div>
+
+<div class="row mt-4">
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Organiza por habitaciones</h5>
+        <p class="card-text">
+          Divide tus tareas de limpieza por áreas específicas de tu hogar.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Programa tus tareas</h5>
+        <p class="card-text">
+          Establece horarios y frecuencias para cada tarea según tus
+          necesidades.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Seguimiento de actividades</h5>
+        <p class="card-text">
+          Visualiza tu progreso y mantén un hogar limpio y organizado.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
