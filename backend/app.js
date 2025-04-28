@@ -20,13 +20,17 @@ app.use(
     origin: [
       "http://localhost:4200",
       "https://santiherr32.github.io",
-      "https://santiherr32.github.io/AppLimpieza", // Añadir la ruta completa
+      "https://santiherr32.github.io/AppLimpieza",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+// Agregar este middleware para manejar OPTIONS
+app.options("*", cors());
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

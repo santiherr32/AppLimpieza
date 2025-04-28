@@ -20,7 +20,6 @@ export class AuthInterceptor implements HttpInterceptor {
       const requestClonado = request.clone({
         headers: request.headers
           .set('Authorization', `Bearer ${token}`)
-          .set('Access-Control-Allow-Origin', '*')
       });
 
       return next.handle(requestClonado).pipe(
