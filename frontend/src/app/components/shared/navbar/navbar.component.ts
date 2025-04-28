@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../services/auth/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
@@ -7,21 +9,30 @@ import { Router } from '@angular/router';
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css']
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnInit, OnDestroy {
+  private authSub?: Subscription;
 
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) { }
+
+  ngOnInit() {
+    this.authSub = this.authService.usuario$.subscribe();
+  }
+
+  ngOnDestroy() {
+    if (this.authSub) {
+      this.authSub.unsubscribe();
+    }
+  }
 
   estaAutenticado(): boolean {
-    // Por ahora, simplemente verificamos si hay un token en localStorage
-    return !!localStorage.getItem('token');
+    return this.authService.estaAutenticado();
   }
 
   cerrarSesion(): void {
-    // Eliminar el token y cualquier información de usuario del localStorage
-    localStorage.removeItem('token');
-    localStorage.removeItem('usuario');
-    
-    // Redirigir al inicio
+    this.authService.logout();
     this.router.navigate(['/inicio']);
   }
 }

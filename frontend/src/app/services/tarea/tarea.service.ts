@@ -36,6 +36,10 @@ export class TareaService {
     return this.http.put<any>(`${this.apiUrl}/completar/${tareaId}`, {});
   }
 
+  descompletarTarea(tareaId: string): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/descompletar/${tareaId}`, {});
+  }
+
   eliminarTarea(tareaId: string): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${tareaId}`);
   }

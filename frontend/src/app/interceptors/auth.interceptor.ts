@@ -6,25 +6,26 @@ import {
   HttpInterceptor,
   HttpErrorResponse
 } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { catchError, Observable, throwError } from 'rxjs';
-import { AuthService } from '../services/auth/auth.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-
-  constructor(private authService: AuthService) { }
+  constructor(private router: Router) { }
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    const token = this.authService.getToken();
+    const token = localStorage.getItem('auth-token');
 
     if (token) {
       const requestClonado = request.clone({
         headers: request.headers.set('Authorization', `Bearer ${token}`)
       });
+
       return next.handle(requestClonado).pipe(
         catchError((error: HttpErrorResponse) => {
           if (error.status === 401) {
-            this.authService.logout(); // Limpiar el token si hay un error de autenticación
+            localStorage.removeItem('auth-token');
+            this.router.navigate(['/login']);
           }
           return throwError(() => error);
         })

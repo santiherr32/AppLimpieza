@@ -1,5 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { Subscription, of } from 'rxjs';
+import { switchMap, filter } from 'rxjs/operators';
 import { HogarService } from '../../services/hogar/hogar.service';
 import { HabitacionService } from '../../services/habitacion/habitacion.service';
 import { TareaService } from '../../services/tarea/tarea.service';
@@ -11,7 +14,7 @@ import { AuthService } from '../../services/auth/auth.service';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   hogar: any = null;
   habitaciones: any[] = [];
   tareasPendientes: any[] = [];
@@ -28,8 +31,11 @@ export class DashboardComponent implements OnInit {
   mostrarModalNuevoHogar = false;
   hogarForm: FormGroup;
 
+  private authSub?: Subscription;
+
   constructor(
     private fb: FormBuilder,
+    private router: Router,
     private hogarService: HogarService,
     private habitacionService: HabitacionService,
     private tareaService: TareaService,
@@ -42,10 +48,30 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.authService.usuario$.subscribe(usuario => {
+    this.authSub = this.authService.cargandoUsuario$.pipe(
+      switchMap(cargando => {
+        if (!cargando) {
+          // Solo verificamos autenticación después de que la carga termine
+          if (!this.authService.estaAutenticado()) {
+            this.router.navigate(['/inicio']);
+            return of(null);
+          }
+          return this.authService.usuario$;
+        }
+        return of(null);
+      }),
+      // Filtrar valores nulos para evitar ejecuciones innecesarias
+      filter(usuario => usuario !== null)
+    ).subscribe(usuario => {
       this.usuario = usuario;
       this.cargarDatos();
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.authSub) {
+      this.authSub.unsubscribe();
+    }
   }
 
   cargarDatos(): void {

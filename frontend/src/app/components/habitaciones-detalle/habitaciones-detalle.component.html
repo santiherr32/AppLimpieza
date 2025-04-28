@@ -34,26 +34,35 @@
         </button>
       </div>
       <div class="space-y-2">
-        <button
-          *ngFor="let habitacion of habitaciones"
-          (click)="seleccionarHabitacion(habitacion._id!)"
-          class="w-full text-left px-4 py-2 rounded transition"
-          [ngClass]="
-            habitacionSeleccionada === habitacion._id
-              ? 'bg-blue-500 text-white'
-              : 'hover:bg-gray-100 text-gray-700'
-          "
-        >
-          {{ habitacion.nombre }}
-          <span
-            class="text-sm block"
-            [ngClass]="{
-              'text-blue-200': habitacionSeleccionada === habitacion._id
-            }"
+        <div class="flex flex-col space-y-2">
+          <!-- Pestaña "Todas las tareas" cuando mostrarTodasLasTareas es true -->
+          <button
+            *ngIf="mostrarTodasLasTareas"
+            (click)="seleccionarHabitacion('todas')"
+            class="text-left px-4 py-3 rounded-lg transition"
+            [class.bg-purple-100]="habitacionSeleccionada === 'todas'"
           >
-            {{ habitacion.tipoHabitacion | titlecase }}
-          </span>
-        </button>
+            <h4 class="font-medium text-gray-900">Todas las tareas</h4>
+          </button>
+
+          <!-- Pestañas de habitaciones existentes -->
+          <button
+            *ngFor="let habitacion of habitaciones"
+            (click)="seleccionarHabitacion(habitacion._id!)"
+            class="text-left px-4 py-3 rounded-lg transition"
+            [class.bg-purple-100]="habitacionSeleccionada === habitacion._id"
+          >
+            {{ habitacion.nombre }}
+            <span
+              class="text-sm block"
+              [ngClass]="{
+                'text-blue-200': habitacionSeleccionada === habitacion._id
+              }"
+            >
+              {{ habitacion.tipoHabitacion | titlecase }}
+            </span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -63,7 +72,11 @@
         <div *ngIf="habitacionSeleccionada" class="space-y-4">
           <div class="flex justify-between items-center">
             <h3 class="text-lg font-semibold text-gray-800">
-              Tareas de {{ getNombreHabitacion(habitacionSeleccionada) }}
+              {{
+                habitacionSeleccionada === "todas"
+                  ? "Todas las Tareas"
+                  : "Tareas de " + getNombreHabitacion(habitacionSeleccionada)
+              }}
             </h3>
             <button
               (click)="abrirModalTarea()"
@@ -80,12 +93,21 @@
               <div
                 *ngFor="let tarea of tareas"
                 class="p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition"
+                [class.bg-green-50]="tarea.completado"
                 (click)="verDetallesTarea(tarea)"
               >
                 <div class="flex justify-between items-start">
                   <div>
-                    <h4 class="font-medium text-gray-800">
+                    <h4
+                      class="font-medium text-gray-800 flex items-center gap-2"
+                    >
                       {{ tarea.nombre }}
+                      <span
+                        *ngIf="tarea.completado"
+                        class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded"
+                      >
+                        Completada
+                      </span>
                     </h4>
                     <p class="text-sm text-gray-600">{{ tarea.descripcion }}</p>
                     <div class="mt-2 space-x-2">
@@ -114,10 +136,18 @@
                       Editar
                     </button>
                     <button
+                      *ngIf="!tarea.completado"
                       class="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
-                      (click)="completarTarea(tarea._id!)"
+                      (click)="completarTarea(tarea._id!, $event)"
                     >
                       Completar
+                    </button>
+                    <button
+                      *ngIf="tarea.completado"
+                      class="px-3 py-1 text-sm bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                      (click)="descompletarTarea(tarea._id!, $event)"
+                    >
+                      Descompletar
                     </button>
                   </div>
                 </div>
@@ -346,7 +376,7 @@
   <!-- Panel lateral de detalles -->
   <div
     *ngIf="mostrarDetallesTarea"
-    class="fixed inset-0 bg-gray-600 bg-opacity-75 backdrop-blur-sm overflow-hidden z-50"
+    class="fixed inset-0 bg-gray-600/50 overflow-hidden z-50"
     (click)="cerrarDetallesTarea()"
   >
     <div
@@ -436,12 +466,33 @@
             </span>
           </div>
 
+          <div>
+            <h4 class="text-sm font-medium text-gray-500">Estado</h4>
+            <span
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+              [ngClass]="{
+                'bg-green-100 text-green-800': tareaSeleccionada.completado,
+                'bg-yellow-100 text-yellow-800': !tareaSeleccionada.completado
+              }"
+            >
+              {{ tareaSeleccionada.completado ? "Completada" : "Pendiente" }}
+            </span>
+          </div>
+
           <div class="pt-4">
             <button
+              *ngIf="!tareaSeleccionada.completado"
               (click)="completarTarea(tareaSeleccionada._id!)"
               class="w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
             >
               Marcar como Completada
+            </button>
+            <button
+              *ngIf="tareaSeleccionada.completado"
+              (click)="descompletarTarea(tareaSeleccionada._id!)"
+              class="w-full px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+            >
+              Marcar como Pendiente
             </button>
           </div>
         </div>

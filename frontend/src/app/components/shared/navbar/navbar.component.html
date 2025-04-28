@@ -1,52 +1,55 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-  <div class="container-fluid">
-    <a class="navbar-brand" routerLink="/inicio">AppLimpieza</a>
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#navbarNav"
-      aria-controls="navbarNav"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/inicio" routerLinkActive="active"
-            >Inicio</a
+<nav class="bg-purple-600 shadow-lg">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex justify-between h-16">
+      <div class="flex items-center">
+        <a routerLink="/inicio" class="text-white text-xl font-bold"
+          >AppLimpieza</a
+        >
+      </div>
+
+      <div class="flex items-center">
+        <!-- Links para usuario no autenticado -->
+        <div *ngIf="!estaAutenticado()" class="space-x-4">
+          <a
+            routerLink="/login"
+            routerLinkActive="bg-purple-700"
+            class="text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 transition-colors"
           >
-        </li>
-        <li class="nav-item" *ngIf="!estaAutenticado()">
-          <a class="nav-link" routerLink="/login" routerLinkActive="active"
-            >Iniciar Sesión</a
+            Iniciar Sesión
+          </a>
+          <a
+            routerLink="/registro"
+            routerLinkActive="bg-purple-700"
+            class="text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 transition-colors"
           >
-        </li>
-        <li class="nav-item" *ngIf="!estaAutenticado()">
-          <a class="nav-link" routerLink="/registro" routerLinkActive="active"
-            >Registrarse</a
+            Registrarse
+          </a>
+        </div>
+
+        <!-- Links para usuario autenticado -->
+        <div *ngIf="estaAutenticado()" class="space-x-4">
+          <a
+            routerLink="/dashboard"
+            routerLinkActive="bg-purple-700"
+            class="text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 transition-colors"
           >
-        </li>
-        <li class="nav-item" *ngIf="estaAutenticado()">
-          <a class="nav-link" routerLink="/dashboard" routerLinkActive="active"
-            >Dashboard</a
+            Dashboard
+          </a>
+          <a
+            routerLink="/perfil"
+            routerLinkActive="bg-purple-700"
+            class="text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-purple-700 transition-colors"
           >
-        </li>
-        <li class="nav-item" *ngIf="estaAutenticado()">
-          <a class="nav-link" routerLink="/perfil" routerLinkActive="active"
-            >Perfil</a
+            Perfil
+          </a>
+          <button
+            (click)="cerrarSesion()"
+            class="text-purple-600 bg-white px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors"
           >
-        </li>
-      </ul>
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item" *ngIf="estaAutenticado()">
-          <button class="btn btn-outline-light" (click)="cerrarSesion()">
             Cerrar Sesión
           </button>
-        </li>
-      </ul>
+        </div>
+      </div>
     </div>
   </div>
 </nav>
