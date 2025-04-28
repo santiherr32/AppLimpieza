@@ -5,4 +5,14 @@ module.exports = {
     extend: {},
   },
   plugins: [],
+  variants: {
+    extend: {
+      backgroundColor: ["active"],
+      backgroundOpacity: ["active"],
+      backdropFilter: ["hover", "focus"],
+    },
+  },
+  corePlugins: {
+    backdropFilter: true,
+  },
 };

@@ -1,2 +1,12 @@
 /* You can add global styles to this file, and also import other style files */
 @import "tailwindcss";
+
+/* Agregar al archivo de estilos globales */
+button:not([disabled]) {
+  cursor: pointer;
+}
+
+/* Para mantener el cursor not-allowed en botones deshabilitados */
+button[disabled] {
+  cursor: not-allowed;
+}

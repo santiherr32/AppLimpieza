@@ -13,7 +13,7 @@ export class AuthService {
   public usuario$ = this.usuarioSubject.asObservable();
 
   constructor(private http: HttpClient) {
-    this.cargarUsuario();
+    // this.cargarUsuario();
   }
 
   private cargarUsuario(): void {
@@ -23,7 +23,8 @@ export class AuthService {
     }
   }
 
-  registrar(usuario: { nombre: string, email: string, password: string }): Observable<any> {
+  registrar(usuario: { nombre: string, correo: string, contraseña: string }): Observable<any> {
+    this.logout(); // Limpiar cualquier token existente antes de registrar un nuevo usuario
     return this.http.post<any>(`${this.apiUrl}/register`, usuario)
       .pipe(
         tap(respuesta => {
@@ -33,7 +34,7 @@ export class AuthService {
       );
   }
 
-  login(credenciales: { email: string, password: string }): Observable<any> {
+  login(credenciales: { correo: string, contraseña: string }): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/login`, credenciales)
       .pipe(
         tap(respuesta => {
@@ -48,6 +49,15 @@ export class AuthService {
       .pipe(
         tap(usuario => {
           this.usuarioSubject.next(usuario);
+        })
+      );
+  }
+
+  actualizarPerfil(datos: { nombre: string; correo: string; contraseña?: string }): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/perfil`, datos)
+      .pipe(
+        tap(usuarioActualizado => {
+          this.usuarioSubject.next(usuarioActualizado); // Actualizar el estado del usuario
         })
       );
   }

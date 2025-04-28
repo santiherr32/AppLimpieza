@@ -1,0 +1,258 @@
+<div class="container mt-4">
+  <div class="row">
+    <!-- Formulario de Tarea -->
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h3>Nueva Tarea de Limpieza</h3>
+        </div>
+        <div class="card-body">
+          <!-- Mensajes -->
+          <div
+            *ngIf="mensajeExito"
+            class="alert alert-success alert-dismissible fade show"
+          >
+            {{ mensajeExito }}
+            <button
+              type="button"
+              class="btn-close"
+              (click)="mensajeExito = ''"
+            ></button>
+          </div>
+          <div
+            *ngIf="mensajeError"
+            class="alert alert-danger alert-dismissible fade show"
+          >
+            {{ mensajeError }}
+            <button
+              type="button"
+              class="btn-close"
+              (click)="mensajeError = ''"
+            ></button>
+          </div>
+
+          <!-- Formulario -->
+          <form [formGroup]="tareaForm" (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+              <label for="nombre" class="form-label">Nombre de la tarea</label>
+              <input
+                type="text"
+                class="form-control"
+                id="nombre"
+                formControlName="nombre"
+                [class.is-invalid]="
+                  tareaForm.get('nombre')?.invalid &&
+                  tareaForm.get('nombre')?.touched
+                "
+              />
+              <div class="invalid-feedback">
+                <div *ngIf="tareaForm.get('nombre')?.errors?.['required']">
+                  El nombre es requerido
+                </div>
+                <div *ngIf="tareaForm.get('nombre')?.errors?.['minlength']">
+                  El nombre debe tener al menos 3 caracteres
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="descripcion" class="form-label">Descripción</label>
+              <textarea
+                class="form-control"
+                id="descripcion"
+                formControlName="descripcion"
+                rows="2"
+              ></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label for="habitacionId" class="form-label">Habitación</label>
+              <select
+                class="form-select"
+                id="habitacionId"
+                formControlName="habitacionId"
+                [class.is-invalid]="
+                  tareaForm.get('habitacionId')?.invalid &&
+                  tareaForm.get('habitacionId')?.touched
+                "
+              >
+                <option value="">Seleccione una habitación</option>
+                <option
+                  *ngFor="let habitacion of habitaciones"
+                  [value]="habitacion._id"
+                >
+                  {{ habitacion.nombre }}
+                </option>
+              </select>
+              <div class="invalid-feedback">
+                Debe seleccionar una habitación
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="frecuencia" class="form-label">Frecuencia</label>
+              <select
+                class="form-select"
+                id="frecuencia"
+                formControlName="frecuencia"
+                [class.is-invalid]="
+                  tareaForm.get('frecuencia')?.invalid &&
+                  tareaForm.get('frecuencia')?.touched
+                "
+              >
+                <option value="">Seleccione la frecuencia</option>
+                <option *ngFor="let freq of frecuencias" [value]="freq">
+                  {{ freq | titlecase }}
+                </option>
+              </select>
+              <div class="invalid-feedback">
+                Debe seleccionar una frecuencia
+              </div>
+            </div>
+
+            <div
+              class="mb-3"
+              *ngIf="tareaForm.get('frecuencia')?.value === 'semanal'"
+            >
+              <label class="form-label">Días de la semana</label>
+              <div class="form-control">
+                <div class="form-check" *ngFor="let dia of diasSemana">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    [value]="dia"
+                    [id]="'dia-' + dia"
+                    (change)="onDiaSemanaChange(dia, $event)"
+                  />
+                  <label class="form-check-label" [for]="'dia-' + dia">
+                    {{ dia | titlecase }}
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="horario" class="form-label">Horario preferido</label>
+              <input
+                type="time"
+                class="form-control"
+                id="horario"
+                formControlName="horario"
+              />
+            </div>
+
+            <div class="mb-3">
+              <label for="duracionEstimada" class="form-label"
+                >Duración estimada (minutos)</label
+              >
+              <input
+                type="number"
+                class="form-control"
+                id="duracionEstimada"
+                formControlName="duracionEstimada"
+                [class.is-invalid]="
+                  tareaForm.get('duracionEstimada')?.invalid &&
+                  tareaForm.get('duracionEstimada')?.touched
+                "
+              />
+              <div class="invalid-feedback">
+                La duración debe estar entre 5 y 480 minutos
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="prioridad" class="form-label">Prioridad</label>
+              <select
+                class="form-select"
+                id="prioridad"
+                formControlName="prioridad"
+              >
+                <option *ngFor="let p of prioridades" [value]="p">
+                  {{ p | titlecase }}
+                </option>
+              </select>
+            </div>
+
+            <div class="d-grid gap-2">
+              <button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="tareaForm.invalid"
+              >
+                Crear Tarea
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                (click)="resetForm()"
+              >
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de Tareas -->
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h3>Tareas Pendientes</h3>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Tarea</th>
+                  <th>Habitación</th>
+                  <th>Frecuencia</th>
+                  <th>Próxima ejecución</th>
+                  <th>Prioridad</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let tarea of tareas">
+                  <td>{{ tarea.nombre }}</td>
+                  <td>{{ getNombreHabitacion(tarea.habitacion) }}</td>
+                  <td>{{ tarea.frecuencia | titlecase }}</td>
+                  <td>{{ tarea.proximaEjecucion | date : "short" }}</td>
+                  <td>
+                    <span
+                      class="badge"
+                      [ngClass]="{
+                        'bg-success': tarea.prioridad === 'baja',
+                        'bg-warning': tarea.prioridad === 'media',
+                        'bg-danger': tarea.prioridad === 'alta'
+                      }"
+                    >
+                      {{ tarea.prioridad | titlecase }}
+                    </span>
+                  </td>
+                  <td>
+                    <button
+                      class="btn btn-sm btn-success me-2"
+                      (click)="completarTarea(tarea._id!)"
+                      *ngIf="tarea._id"
+                    >
+                      Completar
+                    </button>
+                    <button
+                      class="btn btn-sm btn-danger"
+                      (click)="eliminarTarea(tarea._id!)"
+                      *ngIf="tarea._id"
+                    >
+                      Eliminar
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

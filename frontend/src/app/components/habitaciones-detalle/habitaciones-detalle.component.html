@@ -1,0 +1,451 @@
+<div class="container mx-auto px-4 py-8">
+  <!-- Loading y Error -->
+  <div *ngIf="cargando" class="text-center py-8">
+    <div
+      class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"
+    ></div>
+  </div>
+
+  <div
+    *ngIf="error"
+    class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6"
+  >
+    {{ error }}
+  </div>
+
+  <div
+    *ngIf="mensajeExito"
+    class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6"
+  >
+    {{ mensajeExito }}
+  </div>
+
+  <!-- Habitaciones y Tareas -->
+  <div *ngIf="!cargando" class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <!-- Pestañas Verticales de Habitaciones -->
+    <div class="bg-white rounded-lg shadow-md p-4">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold text-gray-800">Habitaciones</h3>
+        <button
+          (click)="abrirModalHabitacion()"
+          class="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
+        >
+          Nueva Habitación
+        </button>
+      </div>
+      <div class="space-y-2">
+        <button
+          *ngFor="let habitacion of habitaciones"
+          (click)="seleccionarHabitacion(habitacion._id!)"
+          class="w-full text-left px-4 py-2 rounded transition"
+          [ngClass]="
+            habitacionSeleccionada === habitacion._id
+              ? 'bg-blue-500 text-white'
+              : 'hover:bg-gray-100 text-gray-700'
+          "
+        >
+          {{ habitacion.nombre }}
+          <span
+            class="text-sm block"
+            [ngClass]="{
+              'text-blue-200': habitacionSeleccionada === habitacion._id
+            }"
+          >
+            {{ habitacion.tipoHabitacion | titlecase }}
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Lista de Tareas -->
+    <div class="md:col-span-3">
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div *ngIf="habitacionSeleccionada" class="space-y-4">
+          <div class="flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-800">
+              Tareas de {{ getNombreHabitacion(habitacionSeleccionada) }}
+            </h3>
+            <button
+              (click)="abrirModalTarea()"
+              class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+            >
+              Crear Tarea
+            </button>
+          </div>
+
+          <ng-container
+            *ngIf="tareasPorHabitacion[habitacionSeleccionada] as tareas"
+          >
+            <div *ngIf="tareas.length > 0; else sinTareas" class="space-y-3">
+              <div
+                *ngFor="let tarea of tareas"
+                class="p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition"
+                (click)="verDetallesTarea(tarea)"
+              >
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h4 class="font-medium text-gray-800">
+                      {{ tarea.nombre }}
+                    </h4>
+                    <p class="text-sm text-gray-600">{{ tarea.descripcion }}</p>
+                    <div class="mt-2 space-x-2">
+                      <span class="text-xs text-gray-500">{{
+                        tarea.frecuencia | titlecase
+                      }}</span>
+                      <span
+                        class="text-xs px-2 py-1 rounded"
+                        [ngClass]="{
+                          'bg-red-100 text-red-800': tarea.prioridad === 'alta',
+                          'bg-yellow-100 text-yellow-800':
+                            tarea.prioridad === 'media',
+                          'bg-green-100 text-green-800':
+                            tarea.prioridad === 'baja'
+                        }"
+                      >
+                        {{ tarea.prioridad | titlecase }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="flex space-x-2">
+                    <button
+                      class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                      routerLink="/tareas/editar/{{ tarea._id }}"
+                    >
+                      Editar
+                    </button>
+                    <button
+                      class="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
+                      (click)="completarTarea(tarea._id!)"
+                    >
+                      Completar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-template #sinTareas>
+            <div class="text-center py-8 text-gray-500">
+              No hay tareas registradas para esta habitación
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Nueva Habitación -->
+  <div
+    *ngIf="mostrarModalHabitacion"
+    class="fixed inset-0 bg-gray-600/50 backdrop-blur-sm overflow-y-auto h-full w-full z-50"
+  >
+    <div
+      class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white"
+    >
+      <div class="mt-3">
+        <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">
+          Nueva Habitación
+        </h3>
+        <form [formGroup]="habitacionForm" (ngSubmit)="crearHabitacion()">
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700"
+              >Nombre</label
+            >
+            <input
+              type="text"
+              formControlName="nombre"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Tipo</label>
+            <select
+              formControlName="tipoHabitacion"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            >
+              <option value="">Seleccione un tipo</option>
+              <option value="cocina">Cocina</option>
+              <option value="baño">Baño</option>
+              <option value="dormitorio">Dormitorio</option>
+              <option value="sala">Sala</option>
+              <option value="comedor">Comedor</option>
+              <option value="oficina">Oficina</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700"
+              >Descripción</label
+            >
+            <textarea
+              formControlName="descripcion"
+              rows="3"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            ></textarea>
+          </div>
+
+          <div class="flex justify-end gap-3">
+            <button
+              type="button"
+              (click)="cerrarModalHabitacion()"
+              class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              [disabled]="habitacionForm.invalid"
+              class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-blue-300"
+            >
+              Crear
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Nueva Tarea -->
+  <div
+    *ngIf="mostrarModalTarea"
+    class="fixed inset-0 bg-gray-600/50 backdrop-blur-sm overflow-y-auto h-full w-full z-50"
+    (click)="cerrarModalTarea()"
+  >
+    <div
+      class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="mt-3">
+        <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">
+          Nueva Tarea
+        </h3>
+        <form [formGroup]="tareaForm" (ngSubmit)="crearTarea()">
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700"
+              >Nombre</label
+            >
+            <input
+              type="text"
+              formControlName="nombre"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700"
+              >Descripción</label
+            >
+            <textarea
+              formControlName="descripcion"
+              rows="3"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            ></textarea>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700"
+              >Frecuencia</label
+            >
+            <select
+              formControlName="frecuencia"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            >
+              <option value="">Seleccione una frecuencia</option>
+              <option value="diaria">Diaria</option>
+              <option value="semanal">Semanal</option>
+              <option value="quincenal">Quincenal</option>
+              <option value="mensual">Mensual</option>
+            </select>
+          </div>
+
+          <div
+            class="mb-4"
+            *ngIf="tareaForm.get('frecuencia')?.value === 'semanal'"
+          >
+            <label class="block text-sm font-medium text-gray-700"
+              >Días de la semana</label
+            >
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-2">
+                <label
+                  *ngFor="let dia of diasSemana"
+                  class="inline-flex items-center"
+                >
+                  <input
+                    type="checkbox"
+                    [value]="dia"
+                    class="rounded border-gray-300 text-blue-600"
+                    (change)="onDiaSemanaChange(dia, $event)"
+                  />
+                  <span class="ml-2">{{ dia | titlecase }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700"
+              >Horario preferido</label
+            >
+            <input
+              type="time"
+              formControlName="horario"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700"
+              >Duración estimada (minutos)</label
+            >
+            <input
+              type="number"
+              formControlName="duracionEstimada"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700"
+              >Prioridad</label
+            >
+            <select
+              formControlName="prioridad"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            >
+              <option value="baja">Baja</option>
+              <option value="media">Media</option>
+              <option value="alta">Alta</option>
+            </select>
+          </div>
+
+          <div class="flex justify-end gap-3">
+            <button
+              type="button"
+              (click)="cerrarModalTarea()"
+              class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              [disabled]="tareaForm.invalid"
+              class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-blue-300"
+            >
+              Crear
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel lateral de detalles -->
+  <div
+    *ngIf="mostrarDetallesTarea"
+    class="fixed inset-0 bg-gray-600 bg-opacity-75 backdrop-blur-sm overflow-hidden z-50"
+    (click)="cerrarDetallesTarea()"
+  >
+    <div
+      class="absolute right-0 h-full w-1/4 bg-white shadow-xl transform transition-transform duration-300"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-xl font-semibold text-gray-800">
+            Detalles de la Tarea
+          </h3>
+          <button
+            (click)="cerrarDetallesTarea()"
+            class="text-gray-500 hover:text-gray-700"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <div *ngIf="tareaSeleccionada" class="space-y-4">
+          <div>
+            <h4 class="text-sm font-medium text-gray-500">Nombre</h4>
+            <p class="text-gray-900">{{ tareaSeleccionada.nombre }}</p>
+          </div>
+
+          <div>
+            <h4 class="text-sm font-medium text-gray-500">Descripción</h4>
+            <p class="text-gray-900">
+              {{ tareaSeleccionada.descripcion || "Sin descripción" }}
+            </p>
+          </div>
+
+          <div>
+            <h4 class="text-sm font-medium text-gray-500">Frecuencia</h4>
+            <p class="text-gray-900">
+              {{ tareaSeleccionada.frecuencia | titlecase }}
+            </p>
+          </div>
+
+          <div *ngIf="tieneDiasSemana()">
+            <h4 class="text-sm font-medium text-gray-500">Días</h4>
+            <p class="text-gray-900">
+              {{ tareaSeleccionada.diasSemana?.join(", ") | titlecase }}
+            </p>
+          </div>
+
+          <div>
+            <h4 class="text-sm font-medium text-gray-500">Horario</h4>
+            <p class="text-gray-900">
+              {{ tareaSeleccionada.horario || "No especificado" }}
+            </p>
+          </div>
+
+          <div>
+            <h4 class="text-sm font-medium text-gray-500">Duración estimada</h4>
+            <p class="text-gray-900">
+              {{ tareaSeleccionada.duracionEstimada }} minutos
+            </p>
+          </div>
+
+          <div>
+            <h4 class="text-sm font-medium text-gray-500">Prioridad</h4>
+            <span
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+              [ngClass]="{
+                'bg-red-100 text-red-800':
+                  tareaSeleccionada.prioridad === 'alta',
+                'bg-yellow-100 text-yellow-800':
+                  tareaSeleccionada.prioridad === 'media',
+                'bg-green-100 text-green-800':
+                  tareaSeleccionada.prioridad === 'baja'
+              }"
+            >
+              {{ tareaSeleccionada.prioridad | titlecase }}
+            </span>
+          </div>
+
+          <div class="pt-4">
+            <button
+              (click)="completarTarea(tareaSeleccionada._id!)"
+              class="w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+            >
+              Marcar como Completada
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

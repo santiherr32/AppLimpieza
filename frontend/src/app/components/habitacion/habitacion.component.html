@@ -1,0 +1,158 @@
+<div class="container mt-4">
+  <div class="row">
+    <!-- Formulario -->
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h3>{{ modoEdicion ? "Editar Habitación" : "Nueva Habitación" }}</h3>
+        </div>
+        <div class="card-body">
+          <!-- Mensajes -->
+          <div
+            *ngIf="mensajeExito"
+            class="alert alert-success alert-dismissible fade show"
+          >
+            {{ mensajeExito }}
+            <button
+              type="button"
+              class="btn-close"
+              (click)="mensajeExito = ''"
+            ></button>
+          </div>
+          <div
+            *ngIf="mensajeError"
+            class="alert alert-danger alert-dismissible fade show"
+          >
+            {{ mensajeError }}
+            <button
+              type="button"
+              class="btn-close"
+              (click)="mensajeError = ''"
+            ></button>
+          </div>
+
+          <!-- Formulario -->
+          <form [formGroup]="habitacionForm" (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+              <label for="nombre" class="form-label">Nombre</label>
+              <input
+                type="text"
+                class="form-control"
+                id="nombre"
+                formControlName="nombre"
+                [class.is-invalid]="
+                  habitacionForm.get('nombre')?.invalid &&
+                  habitacionForm.get('nombre')?.touched
+                "
+              />
+              <div class="invalid-feedback">
+                <div *ngIf="habitacionForm.get('nombre')?.errors?.['required']">
+                  El nombre es requerido
+                </div>
+                <div
+                  *ngIf="habitacionForm.get('nombre')?.errors?.['minlength']"
+                >
+                  El nombre debe tener al menos 3 caracteres
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="descripcion" class="form-label">Descripción</label>
+              <textarea
+                class="form-control"
+                id="descripcion"
+                formControlName="descripcion"
+                rows="3"
+              ></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label for="tipoHabitacion" class="form-label"
+                >Tipo de Habitación</label
+              >
+              <select
+                class="form-select"
+                id="tipoHabitacion"
+                formControlName="tipoHabitacion"
+                [class.is-invalid]="
+                  habitacionForm.get('tipoHabitacion')?.invalid &&
+                  habitacionForm.get('tipoHabitacion')?.touched
+                "
+              >
+                <option value="">Seleccione un tipo</option>
+                <option *ngFor="let tipo of tiposHabitacion" [value]="tipo">
+                  {{ tipo | titlecase }}
+                </option>
+              </select>
+              <div class="invalid-feedback">
+                Debe seleccionar un tipo de habitación
+              </div>
+            </div>
+
+            <div class="d-grid gap-2">
+              <button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="habitacionForm.invalid"
+              >
+                {{ modoEdicion ? "Actualizar" : "Crear" }}
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                (click)="resetForm()"
+              >
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de Habitaciones -->
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h3>Habitaciones</h3>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Tipo</th>
+                  <th>Descripción</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let habitacion of habitaciones">
+                  <td>{{ habitacion.nombre }}</td>
+                  <td>{{ habitacion.tipoHabitacion | titlecase }}</td>
+                  <td>{{ habitacion.descripcion }}</td>
+                  <td>
+                    <button
+                      class="btn btn-sm btn-primary me-2"
+                      (click)="editarHabitacion(habitacion)"
+                    >
+                      Editar
+                    </button>
+                    <button
+                      class="btn btn-sm btn-danger"
+                      (click)="eliminarHabitacion(habitacion._id)"
+                    >
+                      Eliminar
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,1 +1,250 @@
-<p>dashboard works!</p>
+<div class="container mx-auto px-4 py-8">
+  <!-- Mensaje de bienvenida -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-800">
+      Bienvenido, {{ usuario?.nombre || "Usuario" }}
+    </h1>
+    <p class="text-gray-600 mt-2">
+      Aquí tienes un resumen de tu hogar y las tareas pendientes
+    </p>
+  </div>
+
+  <!-- Loading y Error -->
+  <div *ngIf="cargando" class="text-center py-8">
+    <div
+      class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"
+    ></div>
+  </div>
+
+  <div
+    *ngIf="error"
+    class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6"
+  >
+    {{ error }}
+  </div>
+
+  <!-- Contenido principal -->
+  <div
+    *ngIf="!cargando && !error"
+    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+  >
+    <!-- Información del Hogar -->
+    <div class="col-span-1 bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Mi Hogar</h2>
+      <div *ngIf="!hogarNoExiste; else sinHogar">
+        <p class="text-gray-600">
+          <span class="font-medium">Nombre:</span> {{ hogar.nombre }}
+        </p>
+        <p class="text-gray-600">
+          <span class="font-medium">Dirección:</span> {{ hogar.direccion }}
+        </p>
+        <button
+          routerLink="/hogar"
+          class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+        >
+          Gestionar Hogar
+        </button>
+      </div>
+      <ng-template #sinHogar>
+        <p class="text-gray-500">No has configurado tu hogar aún</p>
+        <button
+          (click)="mostrarModalNuevoHogar = true"
+          class="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
+        >
+          Crear Hogar
+        </button>
+      </ng-template>
+    </div>
+
+    <!-- Habitaciones -->
+    <div class="col-span-1 bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Habitaciones</h2>
+      <div
+        *ngIf="
+          !habitacionesNoExisten && habitaciones.length > 0;
+          else sinHabitaciones
+        "
+      >
+        <div class="space-y-3">
+          <div
+            *ngFor="let habitacion of habitaciones"
+            class="p-3 bg-gray-50 rounded"
+          >
+            <p class="font-medium text-gray-800">{{ habitacion.nombre }}</p>
+            <p class="text-sm text-gray-600">
+              {{ habitacion.tipoHabitacion | titlecase }}
+            </p>
+          </div>
+        </div>
+        <button
+          routerLink="/habitaciones"
+          class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+        >
+          Gestionar Habitaciones
+        </button>
+      </div>
+      <ng-template #sinHabitaciones>
+        <p class="text-gray-500">
+          {{
+            hogarNoExiste
+              ? "Primero crea un hogar para agregar habitaciones"
+              : "No hay habitaciones registradas"
+          }}
+        </p>
+        <button
+          routerLink="/habitaciones"
+          [disabled]="hogarNoExiste"
+          class="mt-4 px-4 py-2"
+          [ngClass]="{
+            'bg-green-500 hover:bg-green-600': !hogarNoExiste,
+            'bg-gray-400 cursor-not-allowed': hogarNoExiste
+          }"
+        >
+          Agregar Habitaciones
+        </button>
+      </ng-template>
+    </div>
+
+    <!-- Tareas Pendientes -->
+    <div class="col-span-1 bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">
+        Tareas Pendientes
+      </h2>
+      <div
+        *ngIf="!tareasNoExisten && tareasPendientes.length > 0; else sinTareas"
+      >
+        <div class="space-y-3">
+          <div
+            *ngFor="let tarea of tareasPendientes.slice(0, 5)"
+            class="p-3 bg-gray-50 rounded"
+          >
+            <p class="font-medium text-gray-800">{{ tarea.nombre }}</p>
+            <div class="flex justify-between items-center mt-2">
+              <span class="text-sm text-gray-600">{{
+                tarea.habitacion.nombre
+              }}</span>
+              <span
+                class="px-2 py-1 text-xs rounded"
+                [ngClass]="{
+                  'bg-red-100 text-red-800': tarea.prioridad === 'alta',
+                  'bg-yellow-100 text-yellow-800': tarea.prioridad === 'media',
+                  'bg-green-100 text-green-800': tarea.prioridad === 'baja'
+                }"
+              >
+                {{ tarea.prioridad | titlecase }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <button
+          routerLink="/tareas"
+          class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+        >
+          Ver Todas las Tareas
+        </button>
+      </div>
+      <ng-template #sinTareas>
+        <p class="text-gray-500">
+          {{
+            hogarNoExiste
+              ? "Primero crea un hogar para agregar tareas"
+              : habitacionesNoExisten
+              ? "Primero agrega habitaciones para crear tareas"
+              : "No hay tareas pendientes"
+          }}
+        </p>
+        <button
+          routerLink="/tareas"
+          [disabled]="hogarNoExiste || habitacionesNoExisten"
+          class="mt-4 px-4 py-2"
+          [ngClass]="{
+            'bg-green-500 hover:bg-green-600':
+              !hogarNoExiste && !habitacionesNoExisten,
+            'bg-gray-400 cursor-not-allowed':
+              hogarNoExiste || habitacionesNoExisten
+          }"
+        >
+          Crear Tareas
+        </button>
+      </ng-template>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Nuevo Hogar -->
+<div
+  *ngIf="mostrarModalNuevoHogar"
+  class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
+>
+  <div
+    class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white"
+  >
+    <div class="mt-3">
+      <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">
+        Configura tu Hogar
+      </h3>
+      <form [formGroup]="hogarForm" (ngSubmit)="crearHogar()">
+        <div class="mb-4">
+          <label for="nombre" class="block text-sm font-medium text-gray-700"
+            >Nombre del Hogar</label
+          >
+          <input
+            type="text"
+            id="nombre"
+            formControlName="nombre"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            placeholder="Ej: Mi Casa"
+          />
+          <div
+            *ngIf="
+              hogarForm.get('nombre')?.invalid &&
+              hogarForm.get('nombre')?.touched
+            "
+            class="text-red-500 text-sm mt-1"
+          >
+            El nombre debe tener al menos 3 caracteres
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="direccion" class="block text-sm font-medium text-gray-700"
+            >Dirección</label
+          >
+          <input
+            type="text"
+            id="direccion"
+            formControlName="direccion"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            placeholder="Ej: Calle Principal #123"
+          />
+          <div
+            *ngIf="
+              hogarForm.get('direccion')?.invalid &&
+              hogarForm.get('direccion')?.touched
+            "
+            class="text-red-500 text-sm mt-1"
+          >
+            La dirección es requerida
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3">
+          <button
+            type="button"
+            (click)="cerrarModal()"
+            class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            [disabled]="hogarForm.invalid"
+            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition disabled:bg-blue-300"
+          >
+            Crear Hogar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

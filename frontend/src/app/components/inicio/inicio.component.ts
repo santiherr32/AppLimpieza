@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-home',
+  selector: 'app-inicio',
   standalone: false,
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css']
+  templateUrl: './inicio.component.html',
+  styleUrls: ['./inicio.component.css']
 })
-export class HomeComponent {
+export class InicioComponent {
   
   estaAutenticado(): boolean {
     return !!localStorage.getItem('token');
