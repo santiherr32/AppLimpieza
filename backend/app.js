@@ -17,8 +17,14 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(
   cors({
-    origin: ["http://localhost:4200", "https://santiherr32.github.io"],
+    origin: [
+      "http://localhost:4200",
+      "https://santiherr32.github.io",
+      "https://santiherr32.github.io/AppLimpieza", // Añadir la ruta completa
+    ],
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 app.use(express.json());
