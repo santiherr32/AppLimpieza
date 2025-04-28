@@ -1,4 +1,3 @@
-// controllers/habitacionController.js
 const Habitacion = require("../models/Habitacion");
 const Hogar = require("../models/Hogar");
 

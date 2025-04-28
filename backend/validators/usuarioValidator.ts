@@ -1,4 +1,4 @@
-const { z } = require("zod");
+const z = require("zod");
 
 const actualizarPerfilSchema = z.object({
     nombre: z.string().min(1, "El nombre es obligatorio"),

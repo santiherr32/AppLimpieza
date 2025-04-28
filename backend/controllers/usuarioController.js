@@ -1,7 +1,7 @@
 const Usuario = require("../models/Usuario");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { actualizarPerfilSchema } = require("../validators/usuarioValidator.ts");
+const { actualizarPerfilSchema } = require("../validators/usuarioValidator.js");
 
 // Generar JWT
 const generarJWT = (id) => {

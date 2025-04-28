@@ -1,4 +1,3 @@
-// controllers/tareaController.js
 const Tarea = require("../models/Tarea");
 const Habitacion = require("../models/Habitacion");
 const Hogar = require("../models/Hogar");

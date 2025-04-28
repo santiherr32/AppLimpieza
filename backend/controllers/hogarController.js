@@ -1,4 +1,3 @@
-// controllers/hogarController.js
 const Hogar = require("../models/Hogar");
 
 // Crear un nuevo hogar

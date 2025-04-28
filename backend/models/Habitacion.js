@@ -1,4 +1,3 @@
-// models/Habitacion.js
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
